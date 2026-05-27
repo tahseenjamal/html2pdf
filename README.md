@@ -1,8 +1,8 @@
 # html2pdf
 
 Convert HTML files to PDF using a headless Chromium browser. Fully renders CDN-linked
-resources (Tailwind CSS, Google Fonts, icon libraries, etc.) before export. An interactive
-TUI lets you choose page size and margins without touching any flags.
+resources (Tailwind CSS, Google Fonts, icon libraries, etc.) before export. A full-screen
+TUI lets you browse for the HTML file, set the output name, pick page size and margins.
 
 ---
 
@@ -10,9 +10,9 @@ TUI lets you choose page size and margins without touching any flags.
 
 - Renders HTML with a real Chromium engine — JavaScript executes, CDN stylesheets apply
 - Waits for network idle before capturing, so lazy-loaded assets are included
-- Arrow-key TUI for page size and margin selection (powered by `questionary`)
-- Landscape orientation via `--landscape`
-- Custom output path via `-o`
+- Full-screen TUI with a file browser, radio buttons, and a Convert button (powered by `textual`)
+- Output filename entered in-app — `.pdf` extension is added automatically
+- Landscape orientation toggle in the TUI
 
 ---
 
@@ -37,7 +37,13 @@ micromamba create -n html2pdf python=3.11 -y
 micromamba run -n html2pdf pip install -r requirements.txt
 ```
 
-### 3. Download the Chromium browser
+### 3. Install Textual via conda-forge
+
+```bash
+micromamba install -n html2pdf -c conda-forge textual -y
+```
+
+### 4. Download the Chromium browser
 
 Playwright needs a bundled Chromium binary (downloaded once, ~170 MB):
 
@@ -50,53 +56,68 @@ micromamba run -n html2pdf python -m playwright install chromium
 ## Usage
 
 ```
-micromamba run -n html2pdf python html2pdf.py <html_file> [options]
+micromamba run -n html2pdf python html2pdf.py [start_dir]
 ```
 
 ### Arguments
 
 | Argument | Description |
 |----------|-------------|
-| `html_file` | Path to the input HTML file |
-| `-o, --output` | Output PDF path (default: same directory and name as input, `.pdf` extension) |
-| `--landscape` | Render in landscape orientation |
+| `start_dir` | *(optional)* Directory to open in the file browser. Defaults to the current working directory. |
 
 ### Examples
 
 ```bash
-# Basic — output saved as report.pdf next to report.html
-micromamba run -n html2pdf python html2pdf.py report.html
+# Open file browser starting from the current directory
+micromamba run -n html2pdf python html2pdf.py
 
-# Custom output path
-micromamba run -n html2pdf python html2pdf.py report.html -o ~/Desktop/report.pdf
-
-# Landscape
-micromamba run -n html2pdf python html2pdf.py slides.html --landscape
-
-# Landscape with custom output
-micromamba run -n html2pdf python html2pdf.py slides.html --landscape -o slides.pdf
+# Open file browser starting from a specific directory
+micromamba run -n html2pdf python html2pdf.py ~/Documents
 ```
 
-### Interactive prompts
+### Interactive TUI
 
-After the command runs you will see two arrow-key menus:
+A full-screen Textual interface opens with everything in one view:
 
 ```
-? Page size:
-  ❯ A4     (210 × 297 mm)
-    A3     (297 × 420 mm)
-    A5     (148 × 210 mm)
-    Letter (8.5 × 11 in)
-    Legal  (8.5 × 14 in)
-    Tabloid (11 × 17 in)
-
-? Margins:
-  ❯ Default   (10 mm)
-    Narrow    (5 mm)
-    No Border (0 mm)
+┌─ html → pdf ──────────────────────────────────────────────┐
+│                                                            │
+│  ┌── Select HTML File ───────────────────────────────────┐ │
+│  │ 📁 /Users/you/                                        │ │
+│  │   📁 Documents/                                       │ │
+│  │   📁 Desktop/                                         │ │
+│  │     📄 report.html   ← click or Enter to select       │ │
+│  └───────────────────────────────────────────────────────┘ │
+│                                                            │
+│  Output:  [report                          ]  .pdf         │
+│                                                            │
+│  ┌── Page Size ──────────┐  ┌── Margins ────────────────┐  │
+│  │ ● A4  (210 × 297 mm) │  │ ● Default    (10 mm)      │  │
+│  │ ○ A3  ...            │  │ ○ Narrow     (5 mm)       │  │
+│  │ ○ ...                │  │ ○ No Border  (0 mm)       │  │
+│  └──────────────────────┘  └───────────────────────────┘  │
+│                                                            │
+│  □ Landscape                      [ Convert to PDF ]       │
+│  Selected: report.html                                     │
+└────────────────────────────────────────────────────────────┘
 ```
 
-Use `↑ ↓` to navigate and `Enter` to confirm. Press `Ctrl+C` to abort.
+**Workflow:**
+1. Browse the file tree and click (or press `Enter`) on an HTML file — the output name is auto-filled with the file stem
+2. Edit the output filename if needed (`.pdf` is appended automatically, saved next to the source file)
+3. Pick page size and margins using `↑ ↓`
+4. Tick Landscape if needed (`Space`)
+5. Tab to `Convert to PDF` and press `Enter`
+
+**Keyboard shortcuts:**
+
+| Key | Action |
+|-----|--------|
+| `Tab` / `Shift+Tab` | Move focus between panels |
+| `↑ ↓` | Navigate file tree / radio options |
+| `Space` | Toggle Landscape checkbox / activate button |
+| `Enter` | Select file / press focused button |
+| `q` | Quit |
 
 ---
 
@@ -127,7 +148,7 @@ If you prefer to activate the environment once per session instead of prefixing 
 
 ```bash
 micromamba activate html2pdf
-python html2pdf.py report.html
+python html2pdf.py
 ```
 
 Deactivate when done:
