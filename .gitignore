@@ -1,0 +1,54 @@
+# HTML input files (keep them out of version control)
+*.html
+*.htm
+
+# Generated PDFs
+*.pdf
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+parts/
+var/
+sdist/
+develop-eggs/
+.installed.cfg
+lib/
+lib64/
+wheels/
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Playwright browser binaries (downloaded via `playwright install`)
+playwright-browsers/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.orig
+
+# Logs
+*.log
